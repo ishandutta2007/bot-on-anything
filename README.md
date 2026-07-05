@@ -4,42 +4,41 @@
    <a href="https://github.com/zhayujie/bot-on-anything/releases/latest"><img src="https://img.shields.io/github/v/release/zhayujie/bot-on-anything" alt="Latest release"></a>
   <a href="https://github.com/zhayujie/bot-on-anything/blob/master/LICENSE"><img src="https://img.shields.io/github/license/zhayujie/bot-on-anything" alt="License: MIT"></a>
   <a href="https://github.com/zhayujie/bot-on-anything"><img src="https://img.shields.io/github/stars/zhayujie/bot-on-anything?style=flat-square" alt="Stars"></a> <br/>
-    [<a href="/README.md">English</a>] | [<a href="/docs/README-CN.md">中文</a>]
+    [English] | [<a href="/docs/README-CN.md">中文</a>]
 </p>
 
-**Bot on Anything** is a powerful AI chatbot builder that allows you to quickly build chatbots and run them anywhere.
+**Bot on Anything** is a lightweight framework for building AI chatbots. With a bit of configuration you can connect various large models to different application channels — a great fit for quickly spinning up bots on overseas channels like Telegram, Slack, Discord, and Gmail.
 
-# Introduction
+> Need a more complete Agent — task planning, long-term memory, skills, MCP, self-evolution and more? Check out our other project **[CowAgent](https://github.com/zhayujie/CowAgent)**. See [Related Projects](#related-projects).
 
-Developers can build and run an intelligent dialogue robot by selecting a connection between various AI large models and application channels with lightweight configuration. It supports easy switching between multiple paths within a single project. This architecture has strong scalability; each application can reuse existing model capabilities, and each new model can run on all application channels.
+<br/>
 
-**Models:**
+## Introduction
 
- - [x] [ChatGPT](https://github.com/zhayujie/bot-on-anything#1-chatgpt)
- - [ ] [Claude](https://github.com/zhayujie/bot-on-anything)
- - [ ] [Gemini](https://github.com/zhayujie/bot-on-anything)
+With a single config file, you pick one connection between a large model and an application channel, get a chatbot running, and switch between different paths anytime within the same project. Models and channels are independent: adding a channel reuses existing models, and adding a model works across all channels.
 
-**Applications:**
+<br/>
 
- - [x] [Terminal](https://github.com/zhayujie/bot-on-anything#1%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%BB%88%E7%AB%AF)
- - [x] [Web](https://github.com/zhayujie/bot-on-anything#9web)
- - [x] [Subscription Account](https://github.com/zhayujie/bot-on-anything#3%E4%B8%AA%E4%BA%BA%E8%AE%A2%E9%98%85%E5%8F%B7)
- - [x] [Service Account](https://github.com/zhayujie/bot-on-anything#4%E4%BC%81%E4%B8%9A%E6%9C%8D%E5%8A%A1%E5%8F%B7)
- - [x] [Enterprise WeChat](https://github.com/zhayujie/bot-on-anything#12%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1)
- - [x] [Telegram](https://github.com/zhayujie/bot-on-anything#6telegram)
- - [x] [QQ](https://github.com/zhayujie/bot-on-anything#5qq)
- - [x] [DingTalk](https://github.com/zhayujie/bot-on-anything#10%E9%92%89%E9%92%89)
- - [x] [Feishu](https://github.com/zhayujie/bot-on-anything#11%E9%A3%9E%E4%B9%A6)
- - [x] [Gmail](https://github.com/zhayujie/bot-on-anything#7gmail)
- - [x] [Slack](https://github.com/zhayujie/bot-on-anything#8slack)
+## 🌟 Highlights
 
-# Quick Start
+| Capability | Description |
+| :--- | :--- |
+| Multiple models | ChatGPT / GPT-4, LinkAI (100+ models with one key), ERNIE Bot, New Bing, Bard — switch by changing the `type` field |
+| Multiple channels | Terminal, Web, WeChat Subscription / Service Account, Enterprise WeChat, QQ, Telegram, Gmail, Slack, DingTalk, Feishu, Discord — 12 channels |
+| Decoupled models & channels | Models and channels are not bound together; any model runs on any channel, and adding one side reuses the other |
+| Parallel channels | List multiple channels in one config and start them together as separate processes without interference |
+| Plugin support | Compatible with the plugin model of [chatgpt-on-wechat](https://github.com/zhayujie/CowAgent/tree/master/plugins) — extend with image generation, model selectors, and more |
+| Lightweight deploy | Pure Python, runs with a few lines of config, and ships with a Dockerfile for one-command builds |
+
+<br/>
+
+## 🚀 Quick Start
 
 ### 1. Runtime Environment
 
-Supports Linux, MacOS, and Windows systems, and Python must be installed. It is recommended to use Python version between 3.7.1 and 3.10.
+Works on Linux, MacOS, and Windows. Python is required — version 3.7.1~3.10 is recommended.
 
-Clone the project code and install dependencies:
+Clone the code and install dependencies:
 
 ```bash
 git clone https://github.com/zhayujie/bot-on-anything
@@ -47,61 +46,81 @@ cd bot-on-anything/
 pip3 install -r requirements.txt
 ```
 
-### 2. Configuration Instructions
+### 2. Configuration
 
-The core configuration file is `config.json`, and a template file `config-template.json` is provided in the project, which can be copied to generate the final effective `config.json` file:
+The core config file is `config.json`. The project ships with a template `config-template.json` — just copy it to get the actual config:
 
 ```bash
 cp config-template.json config.json
 ```
 
-Each model and channel has its own configuration block, which together form a complete configuration file. The overall structure is as follows:
+Each model and channel has its own config block, which together form the full config file. The overall structure looks like this:
 
 ```bash
 {
   "model": {
-    "type" : "openai",             # Selected AI model
+    "type" : "openai",             # the AI model to use
     "openai": {
-      # openAI configuration
+      # openAI config
     }
   },
   "channel": {
-    "type": "slack",            # Channel to be integrated
+    "type": "slack",            # the channel to connect
     "slack": {
-        # slack configuration
+        # slack config
     },
     "telegram": {
-        # telegram configuration
+        # telegram config
     }
   }
 }
 ```
-The configuration file is divided into `model` and `channel` sections at the outermost level. The model section is for model configuration, where the `type` specifies which model to use; the channel section contains the configuration for application channels, and the `type` field specifies which application to integrate.
 
-When using, you only need to change the `type` field under the model and channel configuration blocks to switch between any model and application, connecting different paths. Below, each model and application configuration and running process will be introduced in turn.
+At the top level the config splits into `model` and `channel`: `model` is the model config, whose `type` picks which model to use; `channel` is the channel config, whose `type` picks which channel to connect (it can also be an array to start several channels at once).
+
+Day to day, you just change these two `type` fields to switch between different models and channels. Each model and channel is described below, with configuration and how to run it (click to expand).
 
 ### 3. Running
 
-Run the following command in the project root directory, with the default channel being the terminal:
+Run the following in the project root — the default channel is the terminal:
 
 ```bash
 python3 app.py
 ```
 
-## II. Choose a Model
+You can also build and run with Docker:
 
-### 1. ChatGPT
+```bash
+docker build -t bot-on-anything .
+docker run -d -v $(pwd)/config.json:/app/config.json bot-on-anything
+```
 
-The default model is `gpt-3.5-turbo`. For details, refer to the [official documentation](https://platform.openai.com/docs/guides/chat). It also supports `gpt-4.0`, just modify the model type parameter.
+<br/>
 
-#### (1) Install Dependencies
+## 🤖 Models
+
+| Model | Description |
+| :--- | :--- |
+| [ChatGPT / GPT-4](#chatgpt--gpt-4) | OpenAI's official chat API, defaults to `gpt-3.5-turbo`, can switch to `gpt-4` |
+| [LinkAI](#linkai) | 100+ models with one key, no need to apply for each vendor's API |
+| [ERNIE Bot](#ernie-bot) | Based on Baidu ERNIE Bot's web version |
+| [New Bing](#new-bing) | Based on Bing chat, supports jailbreak mode |
+| [Bard](#bard) | Based on Google Bard's web version |
+
+<a id="chatgpt--gpt-4"></a>
+<details>
+<summary><b>ChatGPT / GPT-4</b></summary>
+
+The default model is `gpt-3.5-turbo`, and `gpt-4` is also supported — just change the `model` parameter. See the [official docs](https://platform.openai.com/docs/guides/chat) for details.
+
+**Install dependencies**
 
 ```bash
 pip3 install --upgrade openai
 ```
-> Note: The openai version needs to be above `0.27.0`. If installation fails, you can first upgrade pip with `pip3 install --upgrade pip`.
+> Note: openai must be version `0.27.0` or above. If installation fails, upgrade pip first with `pip3 install --upgrade pip`.
 
-#### (2) Configuration Item Instructions
+**Configuration**
 
 ```bash
 {
@@ -109,28 +128,31 @@ pip3 install --upgrade openai
     "type" : "chatgpt",
     "openai": {
       "api_key": "YOUR API KEY",
-      "model": "gpt-3.5-turbo",                         # Model name
-      "proxy": "http://127.0.0.1:7890",                 # Proxy address
-      "character_desc": "You are ChatGPT, a large language model trained by OpenAI, aimed at answering and solving any questions people have, and can communicate in multiple languages. When asked who you are, you should also tell the questioner that entering #clear_memory can start a new topic exploration. Entering draw xx can create a picture for you.",
-      "conversation_max_tokens": 1000,                  # Maximum number of characters in the reply, total for input and output
-      "temperature":0.75,     # Entropy, between [0,1], the larger the value, the more random the selected candidate words, the more uncertain the reply, it is recommended to use either this or the top_p parameter, the greater the creativity task, the better, the smaller the precision task
-      "top_p":0.7,            # Candidate word list. 0.7 means only considering the top 70% of candidate words, it is recommended to use either this or the temperature parameter
-      "frequency_penalty":0.0,            # Between [-2,2], the larger this value, the more it reduces the repetition of words in the model's output, leaning towards producing different content
-      "presence_penalty":1.0,             # Between [-2,2], the larger this value, the less restricted by the input, encouraging the model to generate new words not present in the input, leaning towards producing different content
+      "model": "gpt-3.5-turbo",                         # model name
+      "proxy": "http://127.0.0.1:7890",                 # proxy address
+      "character_desc": "You are ChatGPT, a large language model trained by OpenAI...",
+      "conversation_max_tokens": 1000,                  # max reply length, total of input and output
+      "temperature":0.75,     # entropy in [0,1]; higher means more random word choices
+      "top_p":0.7,            # candidate word list; 0.7 means only the top 70% of candidates are considered
+      "frequency_penalty":0.0,            # in [-2,2]; higher reduces word repetition in a line
+      "presence_penalty":1.0,             # in [-2,2]; higher is less constrained by the input
     }
 }
 ```
- + `api_key`: Fill in the `OpenAI API KEY` created when registering your account.
- + `model`: Model name, currently supports `gpt-3.5-turbo`, `gpt-4`, `gpt-4-32k` (the gpt-4 API is not yet open).
- + `proxy`: The address of the proxy client, refer to [#56](https://github.com/zhayujie/bot-on-anything/issues/56) for details.
- + `character_desc`: This configuration saves a piece of text you say to ChatGPT, and it will remember this text as its setting; you can customize any personality for it.
- + `max_history_num`[optional]: Maximum memory length of the conversation, exceeding this length will clear the previous memory.
++ `api_key`: the `OpenAI API KEY` created when you registered your account
++ `model`: model name, supports `gpt-3.5-turbo`, `gpt-4`, `gpt-4-32k`
++ `proxy`: proxy client address, see [#56](https://github.com/zhayujie/bot-on-anything/issues/56)
++ `character_desc`: the bot's persona; the model plays this role, feel free to customize it
++ `max_history_num` (optional): max length of conversation memory; older memory is cleared beyond this
 
----
+</details>
 
-### 2. LinkAI
+<a id="linkai"></a>
+<details>
+<summary><b>LinkAI</b></summary>
 
-#### Configuration Item Instructions
+**Configuration**
+
 ```bash
 {
   "model": {
@@ -150,22 +172,111 @@ pip3 install --upgrade openai
 }
 ```
 
-+ `api_key`: The key for calling the LinkAI service, which can be created in the [console](https://link-ai.tech/console/interface).
-+ `app_code`: The code for the LinkAI application or workflow, optional, refer to [Application Creation](https://docs.link-ai.tech/platform/create-app).
-+ `model`: Supports common models from both domestic and international sources, refer to [Model List](https://docs.link-ai.tech/platform/api/chat#models). It can be left blank, and the default model of the application can be modified in the [LinKAI platform](https://link-ai.tech/console/factory).
-+ Other parameters have the same meaning as those in the ChatGPT model.
++ `api_key`: the key for calling LinkAI, created in the [console](https://link-ai.tech/console/interface)
++ `app_code`: the code of a LinkAI app or workflow, optional, see [Creating an App](https://docs.link-ai.tech/platform/create-app)
++ `model`: supports common models from home and abroad, see the [model list](https://docs.link-ai.tech/platform/api/chat#models); can be left empty and set the app's default model on the [LinkAI platform](https://link-ai.tech/console/factory)
++ Other parameters have the same meaning as in the ChatGPT model
 
-## III. Choose a Channel
+</details>
 
-### 1. Command Line Terminal
+<a id="ernie-bot"></a>
+<details>
+<summary><b>ERNIE Bot</b></summary>
 
-The application that starts by default in the configuration template is the terminal, which requires no additional configuration. You can start the program by executing `python3 app.py` directly in the project directory. Users interact with the dialogue model through command line input, and it supports streaming response effects.
+Based on Baidu ERNIE Bot's web version, needs a Cookie obtained manually.
 
-![terminal_demo.png](docs/images/terminal_demo.png)
+```bash
+{
+  "model": {
+    "type" : "baidu",
+    "baidu": {
+      "acs_token": "YOUR ACS TOKEN",
+      "cookie": "YOUR COOKIE"
+    }
+  }
+}
+```
 
----
++ `cookie`: after logging into [ERNIE Bot](https://yiyan.baidu.com/) in the browser, grab it from the developer tools
++ `acs_token`: same as above, grab it from the request parameters; search for a tutorial if needed
 
-### 2. Web
+</details>
+
+<a id="new-bing"></a>
+<details>
+<summary><b>New Bing</b></summary>
+
+Based on Bing chat, depends on the `EdgeGPT` library, needs a Cookie after logging into Bing.
+
+```bash
+{
+  "model": {
+    "type" : "bing",
+    "bing":{
+      "jailbreak": true,
+      "jailbreak_prompt": "...",
+      "cookies": []
+    }
+  }
+}
+```
+
++ `cookies`: the array of cookies exported from the browser after logging into [Bing](https://www.bing.com/)
++ `jailbreak`: whether to enable jailbreak (Sydney) mode, which bypasses some of the official restrictions
+
+</details>
+
+<a id="bard"></a>
+<details>
+<summary><b>Bard</b></summary>
+
+Based on Google Bard's web version, needs a Cookie after logging in.
+
+```bash
+{
+  "model": {
+    "type" : "bard",
+    "bard": {
+      "cookie": "YOUR COOKIE"
+    }
+  }
+}
+```
+
+</details>
+
+<br/>
+
+## 💬 Channels
+
+| Channel | Description |
+| :--- | :--- |
+| [Terminal](#terminal) | Default channel, no extra config needed |
+| [Web](#web) | Web-based chat, built on flask + socketio |
+| [Subscription Account](#subscription-account) | Auto-reply for a personal WeChat subscription account |
+| [Service Account](#service-account) | Verified WeChat service account, gets around the 5s timeout |
+| [QQ](#qq) | Depends on go-cqhttp, supports private and group chat |
+| [Telegram](#telegram) | Telegram bot |
+| [Gmail](#gmail) | Chat over email |
+| [Slack](#slack) | Slack bot, Socket Mode needs no public IP |
+| [DingTalk](#dingtalk) | DingTalk enterprise internal bot |
+| [Feishu](#feishu) | Feishu enterprise self-built app |
+| [Enterprise WeChat](#enterprise-wechat) | Enterprise WeChat self-built app |
+| [Discord](#discord) | Discord bot |
+
+<a id="terminal"></a>
+<details>
+<summary><b>Terminal</b></summary>
+
+The config template starts the terminal by default — no extra config needed. Run `python3 app.py` in the project directory to start it. Type right in the terminal to chat with the model, with streaming output supported.
+
+![terminal_demo.png](images/terminal_demo.png)
+
+</details>
+
+<a id="web"></a>
+<details>
+<summary><b>Web</b></summary>
 
 **Contributor:** [RegimenArsenic](https://github.com/RegimenArsenic)
 
@@ -181,47 +292,48 @@ pip3 install PyJWT flask flask_socketio
 "channel": {
     "type": "http",
     "http": {
-      "http_auth_secret_key": "6d25a684-9558-11e9-aa94-efccd7a0659b",    // JWT authentication secret key
-      "http_auth_password": "6.67428e-11",        // Authentication password, just for personal use, a preliminary defense against others scanning ports and DDOS wasting tokens
-      "port": "80"       // Port
+      "http_auth_secret_key": "6d25a684-9558-11e9-aa94-efccd7a0659b",    // JWT auth secret key
+      "http_auth_password": "6.67428e-11",        // auth password, for personal use, a basic defense against port scanning and DDOS wasting tokens
+      "port": "80"       // port
     }
   }
 ```
 
-Run locally: After running `python3 app.py`, access `http://127.0.0.1:80`.
+Run locally: after `python3 app.py`, visit `http://127.0.0.1:80`.
 
-Run on a server: After deployment, access `http://public domain or IP:port`.
+Run on a server: after deploying, visit `http://your-domain-or-IP:port`.
 
----
+</details>
 
-### 3. Personal Subscription Account
+<a id="subscription-account"></a>
+<details>
+<summary><b>Subscription Account</b></summary>
 
-**Requirements:** A server and a subscription account.
+**Requirements:** a server and a subscription account.
 
-#### 3.1 Dependency Installation
+**1. Install dependencies**
 
-Install the [werobot](https://github.com/offu/WeRoBot) dependency:
+Install [werobot](https://github.com/offu/WeRoBot):
 
 ```bash
 pip3 install werobot
 ```
 
-#### 3.2 Configuration
+**2. Configuration**
 
 ```bash
 "channel": {
     "type": "wechat_mp",
-
     "wechat_mp": {
-      "token": "YOUR TOKEN",           # Token value
-      "port": "8088"                   # Port the program listens on
+      "token": "YOUR TOKEN",           # token value
+      "port": "8088"                   # port the program listens on
     }
 }
 ```
 
-#### 3.3 Run the Program
+**3. Run the program**
 
-Run `python3 app.py` in the project directory. If the terminal displays the following, it indicates successful operation:
+Run `python3 app.py` in the project directory. If the terminal shows the following, it started successfully:
 
 ```
 [INFO][2023-02-16 01:39:53][app.py:12] - [INIT] load config: ...
@@ -231,72 +343,71 @@ Listening on http://127.0.0.1:8088/
 Hit Ctrl-C to quit.
 ```
 
-#### 2.2 Set the Callback URL for the Subscription Account
+**4. Set the callback URL**
 
-Go to the personal subscription account in the [WeChat Official Platform](https://mp.weixin.qq.com/) and enable server configuration:
+Go to your subscription account in the [WeChat Official Platform](https://mp.weixin.qq.com/) and enable server configuration:
 
-![wx_mp_config.png](docs/images/wx_mp_config.png)
+![wx_mp_config.png](images/wx_mp_config.png)
 
-**Server Address (URL) Configuration**: If you can access the Python program on the server through the configured URL in the browser (default listening on port 8088), it indicates that the configuration is valid. Since the subscription account can only configure ports 80/443, you can modify the configuration to listen directly on port 80 (requires sudo permissions) or use reverse proxy forwarding (like nginx). According to the official documentation, you can fill in either the public IP or domain name here.
+**Server address (URL)**: if you can reach the program on your server through this URL in a browser (default port 8088), the config is valid. Since subscription accounts only allow ports 80/443, either make the program listen on port 80 directly (needs sudo) or forward it with a reverse proxy like nginx. A public IP or a domain both work here.
 
-**Token Configuration**: Must be consistent with the token in the `config.json` configuration.
+**Token**: must match the token in `config.json`.
 
-For detailed operation processes, refer to the [official documentation](https://developers.weixin.qq.com/doc/offiaccount/Getting_Started/Getting_Started_Guide.html).
+For the detailed process, see the [official docs](https://developers.weixin.qq.com/doc/offiaccount/Getting_Started/Getting_Started_Guide.html).
 
-#### 2.3 Usage
+> Note: after a user sends a message, WeChat pushes it to the configured URL, but if there's no reply within 5 seconds it disconnects and retries 3 times, while model requests often take longer than 5s. This project uses async and caching to stretch the limit to 15s, but beyond that it still can't reply in time. For time-sensitive scenarios, use the "Service Account" instead.
 
-After users follow the subscription account, they can send messages.
+</details>
 
-> Note: After users send messages, the WeChat backend will push to the configured URL address, but if there is no reply within 5 seconds, the connection will be disconnected, and it will retry 3 times. However, the request to the OpenAI interface often takes more than 5 seconds. In this project, asynchronous and caching methods have optimized the 5-second timeout limit to 15 seconds, but exceeding this time will still not allow normal replies. At the same time, each time the connection is disconnected after 5 seconds, the web framework will report an error, which will be optimized later.
+<a id="service-account"></a>
+<details>
+<summary><b>Service Account</b></summary>
 
----
+**Requirements:** a server and a WeChat-verified service account.
 
-### 4. Enterprise Service Account
+The service account calls the model asynchronously first, then pushes the result to the user via the customer-service API, which gets around the subscription account's 15s timeout. Its developer-mode config is similar to the subscription account's — see the [official docs](https://developers.weixin.qq.com/doc/offiaccount/Getting_Started/Getting_Started_Guide.html).
 
-**Requirements:** A server and a certified service account.
-
-In the enterprise service account, the 15-second timeout issue of the personal subscription account is resolved by first asynchronously accessing the OpenAI interface and then proactively pushing to the user through the customer service interface. The developer mode configuration of the service account is similar to that of the subscription account. For details, refer to the [official documentation](https://developers.weixin.qq.com/doc/offiaccount/Getting_Started/Getting_Started_Guide.html).
-
-The `config.json` configuration for the enterprise service account only needs to change the type to `wechat_mp_service`, but the configuration block still reuses `wechat_mp`, and in addition, you need to add two configuration items: `app_id` and `app_secret`.
+In the config, just change `type` to `wechat_mp_service`, keep reusing the `wechat_mp` block, and add `app_id` and `app_secret`:
 
 ```bash
 "channel": {
     "type": "wechat_mp_service",
-
     "wechat_mp": {
-      "token": "YOUR TOKEN",            # Token value
-      "port": "8088",                   # Port the program listens on
-      "app_id": "YOUR APP ID",          # App ID
-      "app_secret": "YOUR APP SECRET"   # App secret
+      "token": "YOUR TOKEN",            # token value
+      "port": "8088",                   # port the program listens on
+      "app_id": "YOUR APP ID",          # app ID
+      "app_secret": "YOUR APP SECRET"   # app secret
     }
 }
 ```
 
-Note: The server IP address must be configured in the "IP Whitelist"; otherwise, users will not receive proactively pushed messages.
+> Note: add the server IP to the "IP whitelist", otherwise users won't receive pushed messages.
 
----
+</details>
 
-### 5. QQ
+<a id="qq"></a>
+<details>
+<summary><b>QQ</b></summary>
 
-Requirements: A PC or server (domestic network) and a QQ account.
+**Requirements:** a PC or server (mainland China network) and a QQ account.
 
-Running the QQ bot requires additionally running a `go-cqhttp` program, which is responsible for receiving and sending QQ messages, while our `bot-on-anything` program is responsible for accessing OpenAI to generate dialogue content.
+Running a QQ bot also needs a separate `go-cqhttp` process, which handles sending and receiving QQ messages, while this project requests the model and generates replies.
 
-#### 5.1 Download go-cqhttp
+**1. Download go-cqhttp**
 
-Download the corresponding machine program from the [go-cqhttp Release](https://github.com/Mrs4s/go-cqhttp/releases), unzip it, and place the `go-cqhttp` binary file in our `bot-on-anything/channel/qq` directory. A `config.yml` configuration file is already prepared here; you only need to fill in the QQ account configuration (account-uin).
+Download the build for your system from the [go-cqhttp Release](https://github.com/Mrs4s/go-cqhttp/releases), unzip it, and put the `go-cqhttp` binary in `bot-on-anything/channel/qq`. There's already a `config.yml` there — just fill in your QQ account (account-uin).
 
-#### 5.2 Install aiocqhttp
+**2. Install aiocqhttp**
 
-Use [aiocqhttp](https://github.com/nonebot/aiocqhttp) to interact with go-cqhttp, execute the following command to install the dependency:
+Use [aiocqhttp](https://github.com/nonebot/aiocqhttp) to talk to go-cqhttp:
 
 ```bash
 pip3 install aiocqhttp
 ```
 
-#### 5.3 Configuration
+**3. Configuration**
 
-Simply change the `type` in the `config.json` configuration file's channel block to `qq`:
+Just change the channel `type` in `config.json` to `qq`:
 
 ```bash
 "channel": {
@@ -304,41 +415,42 @@ Simply change the `type` in the `config.json` configuration file's channel block
 }
 ```
 
-#### 5.4 Running
+**4. Running**
 
-First, go to the root directory of the `bot-on-anything` project and run in Terminal 1:
+Terminal 1, in the project root (listens on port 8080):
 
 ```bash
-python3 app.py    # This will listen on port 8080
+python3 app.py
 ```
 
-In the second step, open Terminal 2, navigate to the directory where `cqhttp` is located, and run:
+Terminal 2, in the `go-cqhttp` directory:
 
 ```bash
 cd channel/qq
 ./go-cqhttp
 ```
-Note:
-+ Currently, no keyword matching or group chat whitelist is set; all private chats will automatically reply, and in group chats, as long as you are @mentioned, it will also automatically reply.
-+ If you encounter exceptions such as account freezing, you can change the value of `protocol` in the `device.json` file in the same directory as go-cqhttp from 5 to 2, refer to this [Issue](https://github.com/Mrs4s/go-cqhttp/issues/1942).
 
----
+> Note: there's no keyword matching or group whitelist yet, so all private chats get auto-replies, and in group chats it replies whenever it's @-mentioned. If you hit issues like a frozen account, change `protocol` in `device.json` from 5 to 2, see this [Issue](https://github.com/Mrs4s/go-cqhttp/issues/1942).
 
-### 6. Telegram
+</details>
+
+<a id="telegram"></a>
+<details>
+<summary><b>Telegram</b></summary>
 
 Contributor: [brucelt1993](https://github.com/brucelt1993)
 
-**6.1 Get Token**
+**1. Get the token**
 
-Applying for a Telegram bot can be easily found on Google; the important thing is to obtain the bot's token ID.
+You can search for how to create a Telegram bot — the key thing is getting the bot's token id.
 
-**6.2 Dependency Installation**
+**2. Install dependencies**
 
 ```bash
 pip install pyTelegramBotAPI
 ```
 
-**6.3 Configuration**
+**3. Configuration**
 
 ```bash
 "channel": {
@@ -348,15 +460,18 @@ pip install pyTelegramBotAPI
     }
 }
 ```
----
 
-### 7. Gmail
+</details>
 
-Requirements: A server and a Gmail account.
+<a id="gmail"></a>
+<details>
+<summary><b>Gmail</b></summary>
+
+**Requirements:** a server and a Gmail account.
 
 **Contributor:** [Simon](https://github.com/413675377)
 
-Follow the [official documentation](https://support.google.com/mail/answer/185833?hl=en) to create an APP password for your Google account, configure as below, then cheers!!!
+Follow the [official docs](https://support.google.com/mail/answer/185833?hl=en) to create an APP password for your Google account, then configure it like below:
 
 ```bash
 "channel": {
@@ -368,11 +483,14 @@ Follow the [official documentation](https://support.google.com/mail/answer/18583
     }
   }
 ```
----
 
-### 8. Slack
+</details>
 
-**❉ No longer requires a server or public IP**
+<a id="slack"></a>
+<details>
+<summary><b>Slack</b></summary>
+
+**❉ No longer needs a server or public IP**
 
 **Contributor:** [amaoo](https://github.com/amaoo)
 
@@ -394,44 +512,37 @@ pip3 install slack_bolt
   }
 ```
 
-**Set Bot Token Scope - OAuth & Permission**
-
-Write the Bot User OAuth Token into the configuration file `slack_bot_token`.
+**Set bot token scopes** - OAuth & Permission:
 
 ```
 app_mentions:read
 chat:write
 ```
 
-**Enable Socket Mode - Socket Mode**
+**Enable Socket Mode** - Socket Mode: if you don't have an app-level token yet, you'll be prompted to create one; put it in `slack_app_token`.
 
-If you have not created an application-level token, you will be prompted to create one. Write the created token into the configuration file `slack_app_token`.
-
-**Event Subscription (Event Subscriptions) - Subscribe to Bot Events**
+**Event Subscriptions** - Subscribe to bot events:
 
 ```
 app_mention
 ```
 
-**Reference Documentation**
+Reference: [Slack Bolt for Python](https://slack.dev/bolt-python/tutorial/getting-started)
 
-```
-https://slack.dev/bolt-python/tutorial/getting-started
-```
+</details>
 
----
+<a id="dingtalk"></a>
+<details>
+<summary><b>DingTalk</b></summary>
 
-### 10. DingTalk
-
-**Requirements:**
-
-- Enterprise internal development robot.
+**Requirements:** an enterprise internal development bot.
 
 **Dependencies**
 
 ```bash
 pip3 install requests flask
 ```
+
 **Configuration**
 
 ```bash
@@ -439,95 +550,145 @@ pip3 install requests flask
     "type": "dingtalk",
     "dingtalk": {
       "image_create_prefix": ["draw", "draw", "Draw"],
-      "port": "8081",                  # External port
-      "dingtalk_token": "xx",          # Access token of the webhook address
-      "dingtalk_post_token": "xx",     # Verification token carried in the header when DingTalk posts back messages
-      "dingtalk_secret": "xx"          # Security encryption signature string in the group robot
+      "port": "8081",                  # external port
+      "dingtalk_token": "xx",          # access_token of the webhook URL
+      "dingtalk_post_token": "xx",     # verification token in the header when DingTalk posts back
+      "dingtalk_secret": "xx"          # security signing secret for the group bot
     }
   }
 ```
-**Reference Documentation**:
 
-- [DingTalk Internal Robot Tutorial](https://open.dingtalk.com/document/tutorial/create-a-robot#title-ufs-4gh-poh)
-- [Custom Robot Access Documentation](https://open.dingtalk.com/document/tutorial/create-a-robot#title-ufs-4gh-poh)
-- [Enterprise Internal Development Robot Tutorial Documentation](https://open.dingtalk.com/document/robots/enterprise-created-chatbot)
+**Create the bot**
 
-**Generate Robot**
+At https://open-dev.dingtalk.com/fe/app#/corp/robot , add a bot, then in the development settings fill in the server's outbound IP (run `curl ifconfig.me` on the host to get it) and the message-receiving address (the external address in your config, e.g. `https://xx.xx.com:8081`).
 
-Address: https://open-dev.dingtalk.com/fe/app#/corp/robot
-Add a robot, set the server's outbound IP in the development management, and the message receiving address (the external address in the configuration, such as https://xx.xx.com:8081).
+Reference: [DingTalk internal bot tutorial](https://open.dingtalk.com/document/tutorial/create-a-robot#title-ufs-4gh-poh) · [Enterprise internal bot tutorial](https://open.dingtalk.com/document/robots/enterprise-created-chatbot)
 
----
+</details>
 
-### 11. Feishu
+<a id="feishu"></a>
+<details>
+<summary><b>Feishu</b></summary>
 
 **Dependencies**
 
 ```bash
 pip3 install requests flask
 ```
+
 **Configuration**
 
 ```bash
 "channel": {
     "type": "feishu",
     "feishu": {
-        "image_create_prefix": [
-            "draw",
-            "draw",
-            "Draw"
-        ],
-        "port": "8082",                  # External port
-        "app_id": "xxx",                 # Application app_id
-        "app_secret": "xxx",             # Application Secret
-        "verification_token": "xxx"      # Event subscription Verification Token
+        "image_create_prefix": ["draw", "draw", "Draw"],
+        "port": "8082",                  # external port
+        "app_id": "xxx",                 # app_id
+        "app_secret": "xxx",             # app secret
+        "verification_token": "xxx"      # event subscription verification token
     }
 }
 ```
 
-**Generate Robot**
+**Create the bot**
 
-Address: https://open.feishu.cn/app/
-1. Add a self-built application for the enterprise.
-2. Enable permissions:
-    - im:message
-    - im:message.group_at_msg
-    - im:message.group_at_msg:readonly
-    - im:message.p2p_msg
-    - im:message.p2p_msg:readonly
-    - im:message:send_as_bot
-3. Subscribe to the menu to add events (receive messages v2.0) and configure the request address (the external address in the configuration, such as https://xx.xx.com:8081).
-4. In version management and publishing, launch the application, and the app will receive review information. After passing the review, add the self-built application in the group.
+At https://open.feishu.cn/app/ :
 
----
+1. Add an enterprise self-built app
+2. Grant permissions: `im:message`, `im:message.group_at_msg`, `im:message.group_at_msg:readonly`, `im:message.p2p_msg`, `im:message.p2p_msg:readonly`, `im:message:send_as_bot`
+3. In the event subscription menu, add the event (Receive messages v2.0) and set the request URL (the external address in your config, e.g. `https://xx.xx.com:8081`)
+4. Publish the app in version management; once approved, add the self-built app to your group
 
-### 12. Enterprise WeChat
+</details>
 
-**Requirements:** A server and a certified Enterprise WeChat.
+<a id="enterprise-wechat"></a>
+<details>
+<summary><b>Enterprise WeChat</b></summary>
 
-The `config.json` configuration for Enterprise WeChat only needs to change the type to `wechat_com`, with the default message receiving server URL: http://ip:8888/wechat.
+**Requirements:** a server and a verified Enterprise WeChat.
+
+Just change `type` in `config.json` to `wechat_com`; the default message-receiving URL is `http://ip:8888/wechat`:
 
 ```bash
 "channel": {
     "type": "wechat_com",
     "wechat_com": {
-      "wechat_token": "YOUR TOKEN",            # Token value
-      "port": "8888",                          # Port the program listens on
-      "app_id": "YOUR APP ID",                 # App ID
-      "app_secret": "YOUR APP SECRET",          # App secret
+      "wechat_token": "YOUR TOKEN",            # token value
+      "port": "8888",                          # port the program listens on
+      "app_id": "YOUR APP ID",                 # app ID
+      "app_secret": "YOUR APP SECRET",         # app secret
       "wechat_corp_id": "YOUR CORP ID",
       "wechat_encoding_aes_key": "YOUR AES KEY"
     }
 }
 ```
 
-Note: The server IP address must be configured in the "Enterprise Trusted IP" list; otherwise, users will not receive proactively pushed messages.
+> Note: add the server IP to the "Enterprise trusted IP" list, otherwise users won't receive pushed messages.
 
-**Reference Documentation**:
+Reference: [Enterprise WeChat setup tutorial](https://www.wangpc.cc/software/wechat_com-chatgpt/)
 
-- [Enterprise WeChat Configuration Tutorial](https://www.wangpc.cc/software/wechat_com-chatgpt/)
+</details>
+
+<a id="discord"></a>
+<details>
+<summary><b>Discord</b></summary>
+
+Depends on [discord.py](https://github.com/Rapptz/discord.py):
+
+```bash
+pip3 install "discord.py>=2.0.0"
+```
+
+**Configuration**
+
+```bash
+"channel": {
+    "type": "discord",
+    "discord": {
+        "app_token": "xxx",
+        "channel_name": "xxx",
+        "channel_session": "xxx"
+    }
+}
+```
+
++ `app_token`: the Discord bot's Bot Token
++ `channel_name`: restrict the bot to a specific channel; leave empty to listen to all channels
++ `channel_session`: session granularity, `author` (per user) or `thread` (per thread)
+
+</details>
 
 ### General Configuration
 
-+ `clear_memory_commands`: Dialogue internal commands to actively clear previous memory, the string array can customize command aliases.
-  + default: ["#clear_memory"]
++ `clear_memory_commands`: in-chat command to clear conversation memory; use a string array to define multiple aliases
+  + default: `["#clear_memory"]`
+
+<br/>
+
+## 🔧 Plugin System
+
+Following the plugin design of [chatgpt-on-wechat](https://github.com/zhayujie/CowAgent/tree/master/plugins), this project is also pluginized and stays as compatible as possible with its plugin event model, so you can extend it with image generation, model selectors, and other custom logic. See the [plugin docs](plugins/README.md).
+
+<br/>
+
+## 📺 Video Tutorials (Chinese)
+
+- [WeChat, QQ, Official Account, Web](https://www.bilibili.com/video/BV1KM4y167e8)
+- [Enterprise WeChat, DingTalk, Feishu](https://www.bilibili.com/video/BV1yL411a7DP)
+
+<br/>
+
+<a id="related-projects"></a>
+## 🔗 Related Projects
+
+- **[CowAgent](https://github.com/zhayujie/CowAgent)** — our other project, upgraded to 2.0 Agent capabilities: task planning, long-term memory, knowledge base, skills, MCP, and more, also covering channels like WeChat, Feishu, DingTalk, Enterprise WeChat, QQ, Telegram, Slack, and Discord. Give it a try if you want a more complete AI assistant
+- **[Cow Skill Hub](https://github.com/zhayujie/cow-skill-hub)** — an open skill marketplace for AI Agents, works with CowAgent, OpenClaw, Claude Code, and more
+- **[AgentMesh](https://github.com/MinimalFuture/AgentMesh)** — an open-source multi-agent framework that solves complex problems through team collaboration
+
+<br/>
+
+## ⚠️ Disclaimer
+
+1. This project is under the [MIT License](/LICENSE) and is meant for technical research and learning. Please follow the laws and regulations in your area; you are responsible for any consequences of using this project.
+2. ERNIE Bot, New Bing, and Bard are accessed through their web versions and may stop working when the official policies change — they're for learning only. For production use, prefer the official APIs or LinkAI.
