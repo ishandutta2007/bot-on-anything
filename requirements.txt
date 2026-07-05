@@ -2,7 +2,7 @@ PyJWT
 flask
 flask_socketio
 itchat-uos==1.5.0.dev0
-openai
+openai>=0.27.0,<1.0.0
 EdgeGPT
 requests
 discord.py>=2.0.0

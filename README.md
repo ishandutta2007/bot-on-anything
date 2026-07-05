@@ -23,12 +23,12 @@ With a single config file, you pick one connection between a large model and an 
 
 | Capability | Description |
 | :--- | :--- |
-| Multiple models | ChatGPT / GPT-4, LinkAI (100+ models with one key), ERNIE Bot, New Bing, Bard — switch by changing the `type` field |
+| Multiple models | OpenAI (GPT-5.5 / GPT-4.1, etc.), LinkAI (one key for 100+ models: DeepSeek, Claude, Gemini...), ERNIE Bot, New Bing, Bard — switch by changing the `type` field |
 | Multiple channels | Terminal, Web, WeChat Subscription / Service Account, Enterprise WeChat, QQ, Telegram, Gmail, Slack, DingTalk, Feishu, Discord — 12 channels |
 | Decoupled models & channels | Models and channels are not bound together; any model runs on any channel, and adding one side reuses the other |
 | Parallel channels | List multiple channels in one config and start them together as separate processes without interference |
 | Plugin support | Compatible with the plugin model of [chatgpt-on-wechat](https://github.com/zhayujie/CowAgent/tree/master/plugins) — extend with image generation, model selectors, and more |
-| Lightweight deploy | Pure Python, runs with a few lines of config, and ships with a Dockerfile for one-command builds |
+| Lightweight deploy | Pure Python, runs with just a few lines of config |
 
 <br/>
 
@@ -88,37 +88,32 @@ Run the following in the project root — the default channel is the terminal:
 python3 app.py
 ```
 
-You can also build and run with Docker:
-
-```bash
-docker build -t bot-on-anything .
-docker run -d -v $(pwd)/config.json:/app/config.json bot-on-anything
-```
-
 <br/>
 
 ## 🤖 Models
 
 | Model | Description |
 | :--- | :--- |
-| [ChatGPT / GPT-4](#chatgpt--gpt-4) | OpenAI's official chat API, defaults to `gpt-3.5-turbo`, can switch to `gpt-4` |
-| [LinkAI](#linkai) | 100+ models with one key, no need to apply for each vendor's API |
+| [OpenAI](#openai) | Works with the OpenAI-compatible chat API — GPT-5.5 / GPT-4.1 and other models, or any compatible gateway via `api_base` |
+| [LinkAI](#linkai) | One key for 100+ models including DeepSeek, Claude, Gemini, Qwen, GLM, and more |
 | [ERNIE Bot](#ernie-bot) | Based on Baidu ERNIE Bot's web version |
 | [New Bing](#new-bing) | Based on Bing chat, supports jailbreak mode |
 | [Bard](#bard) | Based on Google Bard's web version |
 
-<a id="chatgpt--gpt-4"></a>
-<details>
-<summary><b>ChatGPT / GPT-4</b></summary>
+> For models from other providers (DeepSeek, Claude, Gemini...), use **LinkAI** — one key covers them all — or [CowAgent](https://github.com/zhayujie/CowAgent).
 
-The default model is `gpt-3.5-turbo`, and `gpt-4` is also supported — just change the `model` parameter. See the [official docs](https://platform.openai.com/docs/guides/chat) for details.
+<a id="openai"></a>
+<details>
+<summary><b>OpenAI</b></summary>
+
+Uses the OpenAI-compatible chat API. Set `model` to any model your endpoint supports (e.g. `gpt-5.5`, `gpt-4.1`), or point `api_base` to a compatible gateway to use other providers. See the [official docs](https://platform.openai.com/docs/guides/chat) for details.
 
 **Install dependencies**
 
 ```bash
-pip3 install --upgrade openai
+pip3 install "openai<1.0.0"
 ```
-> Note: openai must be version `0.27.0` or above. If installation fails, upgrade pip first with `pip3 install --upgrade pip`.
+> Note: this project uses the legacy `openai` SDK (`0.27.x`+ but below `1.0.0`) — `requirements.txt` already pins a compatible version. If installation fails, upgrade pip first with `pip3 install --upgrade pip`.
 
 **Configuration**
 
@@ -128,7 +123,8 @@ pip3 install --upgrade openai
     "type" : "chatgpt",
     "openai": {
       "api_key": "YOUR API KEY",
-      "model": "gpt-3.5-turbo",                         # model name
+      "api_base": "",                                   # optional, an OpenAI-compatible endpoint
+      "model": "gpt-5.5",                               # model name
       "proxy": "http://127.0.0.1:7890",                 # proxy address
       "character_desc": "You are ChatGPT, a large language model trained by OpenAI...",
       "conversation_max_tokens": 1000,                  # max reply length, total of input and output
@@ -140,7 +136,8 @@ pip3 install --upgrade openai
 }
 ```
 + `api_key`: the `OpenAI API KEY` created when you registered your account
-+ `model`: model name, supports `gpt-3.5-turbo`, `gpt-4`, `gpt-4-32k`
++ `api_base` (optional): an OpenAI-compatible endpoint; leave empty for the official API, or point it to a compatible gateway to use other providers
++ `model`: any model your endpoint supports, e.g. `gpt-5.5`, `gpt-4.1`, `gpt-4o` (GPT-5 / o-series only accept default sampling params; this project skips them automatically)
 + `proxy`: proxy client address, see [#56](https://github.com/zhayujie/bot-on-anything/issues/56)
 + `character_desc`: the bot's persona; the model plays this role, feel free to customize it
 + `max_history_num` (optional): max length of conversation memory; older memory is cleared beyond this
@@ -174,8 +171,8 @@ pip3 install --upgrade openai
 
 + `api_key`: the key for calling LinkAI, created in the [console](https://link-ai.tech/console/interface)
 + `app_code`: the code of a LinkAI app or workflow, optional, see [Creating an App](https://docs.link-ai.tech/platform/create-app)
-+ `model`: supports common models from home and abroad, see the [model list](https://docs.link-ai.tech/platform/api/chat#models); can be left empty and set the app's default model on the [LinkAI platform](https://link-ai.tech/console/factory)
-+ Other parameters have the same meaning as in the ChatGPT model
++ `model`: one key gives access to 100+ models (DeepSeek, Claude, Gemini, Qwen, GLM, GPT, etc.), see the [model list](https://docs.link-ai.tech/platform/api/chat#models); can be left empty and set the app's default model on the [LinkAI platform](https://link-ai.tech/console/factory)
++ Other parameters have the same meaning as in the OpenAI model
 
 </details>
 

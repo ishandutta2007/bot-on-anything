@@ -23,12 +23,12 @@
 
 | 能力 | 说明 |
 | :--- | :--- |
-| 多模型 | 支持 ChatGPT / GPT-4、LinkAI（一个 Key 接入 100+ 模型）、文心一言、New Bing、Bard，改一下配置里的 `type` 就能切换 |
+| 多模型 | 支持 OpenAI（GPT-5.5 / GPT-4.1 等）、LinkAI（一个 Key 接入 DeepSeek、Claude、Gemini 等 100+ 模型）、文心一言、New Bing、Bard，改一下配置里的 `type` 就能切换 |
 | 多渠道 | 支持终端、Web、微信订阅号 / 服务号、企业微信、QQ、Telegram、Gmail、Slack、钉钉、飞书、Discord 等 12 个渠道 |
 | 模型与渠道解耦 | 模型和渠道互不绑定，任意模型都能跑在任意渠道上，加一方就能复用另一方 |
 | 多渠道并行 | 在一份配置里写多个渠道，即可用多进程同时启动，互不影响 |
 | 插件扩展 | 兼容 [chatgpt-on-wechat](https://github.com/zhayujie/CowAgent/tree/master/plugins) 的插件机制，可扩展图片生成、模型选择等逻辑 |
-| 轻量部署 | 纯 Python 实现，几行配置即可启动，也提供 Dockerfile 一键构建 |
+| 轻量部署 | 纯 Python 实现，几行配置即可启动 |
 
 <br/>
 
@@ -88,37 +88,32 @@ cp config-template.json config.json
 python3 app.py
 ```
 
-也可以使用 Docker 构建并运行：
-
-```bash
-docker build -t bot-on-anything .
-docker run -d -v $(pwd)/config.json:/app/config.json bot-on-anything
-```
-
 <br/>
 
 ## 🤖 选择模型
 
 | 模型 | 说明 |
 | :--- | :--- |
-| [ChatGPT / GPT-4](#chatgpt--gpt-4) | OpenAI 官方对话接口，默认 `gpt-3.5-turbo`，可切到 `gpt-4` |
-| [LinkAI](#linkai) | 一个 Key 接入 100+ 国内外模型，不用挨个申请厂商 API |
+| [OpenAI](#openai) | 走 OpenAI 兼容对话接口，支持 GPT-5.5 / GPT-4.1 等模型，也可通过 `api_base` 接兼容网关 |
+| [LinkAI](#linkai) | 一个 Key 接入 DeepSeek、Claude、Gemini、Qwen、GLM 等 100+ 模型 |
 | [文心一言](#文心一言) | 基于百度文心一言网页版接入 |
 | [New Bing](#new-bing) | 基于必应对话接入，可开启越狱模式 |
 | [Bard](#bard) | 基于谷歌 Bard 网页版接入 |
 
-<a id="chatgpt--gpt-4"></a>
-<details>
-<summary><b>ChatGPT / GPT-4</b></summary>
+> 提示：DeepSeek、Claude、Gemini 等其他厂商的模型，直接用 **LinkAI** 一个 Key 全搞定，也可以用 [CowAgent](https://github.com/zhayujie/CowAgent)。
 
-默认模型是 `gpt-3.5-turbo`，也支持 `gpt-4`，改一下 `model` 参数就行，详情参考 [官方文档](https://platform.openai.com/docs/guides/chat)。
+<a id="openai"></a>
+<details>
+<summary><b>OpenAI</b></summary>
+
+走 OpenAI 兼容的对话接口。`model` 填你的接口支持的模型名即可（如 `gpt-5.5`、`gpt-4.1`），也可以把 `api_base` 指向兼容网关来接入其他厂商。详情参考 [官方文档](https://platform.openai.com/docs/guides/chat)。
 
 **安装依赖**
 
 ```bash
-pip3 install --upgrade openai
+pip3 install "openai<1.0.0"
 ```
-> 注：openai 版本需要 `0.27.0` 以上。如果安装失败可先升级 pip，`pip3 install --upgrade pip`
+> 注：本项目用的是旧版 `openai` SDK（`0.27.x` 及以上、`1.0.0` 以下），`requirements.txt` 里已经锁定了兼容版本。如果安装失败可先升级 pip：`pip3 install --upgrade pip`。
 
 **配置项说明**
 
@@ -128,7 +123,8 @@ pip3 install --upgrade openai
     "type" : "chatgpt",
     "openai": {
       "api_key": "YOUR API KEY",
-      "model": "gpt-3.5-turbo",                         # 模型名称
+      "api_base": "",                                   # 选填，OpenAI 兼容接口地址
+      "model": "gpt-5.5",                               # 模型名称
       "proxy": "http://127.0.0.1:7890",                 # 代理地址
       "character_desc": "你是ChatGPT, 一个由OpenAI训练的大型语言模型...",
       "conversation_max_tokens": 1000,                  # 回复最大的字符数，为输入和输出的总数
@@ -140,7 +136,8 @@ pip3 install --upgrade openai
 }
 ```
 + `api_key`：填注册账号时创建的 `OpenAI API KEY`
-+ `model`：模型名称，支持 `gpt-3.5-turbo`、`gpt-4`、`gpt-4-32k`
++ `api_base`（选填）：OpenAI 兼容接口地址，留空则走官方 API，也可指向兼容网关来接入其他厂商
++ `model`：接口支持的模型名，如 `gpt-5.5`、`gpt-4.1`、`gpt-4o`（GPT-5 系列只接受默认采样参数，本项目已自动处理）
 + `proxy`：代理客户端地址，详情参考 [#56](https://github.com/zhayujie/bot-on-anything/issues/56)
 + `character_desc`：机器人的人设，模型会按这段话来扮演角色，可以自由定制
 + `max_history_num`（可选）：对话记忆的最大长度，超过后会清理更早的记忆
@@ -174,8 +171,8 @@ pip3 install --upgrade openai
 
 + `api_key`：LinkAI 服务调用的密钥，可在 [控制台](https://link-ai.tech/console/interface) 创建
 + `app_code`：LinkAI 应用或工作流的 code，选填，参考 [应用创建](https://docs.link-ai.tech/platform/create-app)
-+ `model`：支持国内外常见模型，参考 [模型列表](https://docs.link-ai.tech/platform/api/chat#models)，可以留空，在 [LinkAI 平台](https://link-ai.tech/console/factory) 修改应用的默认模型即可
-+ 其他参数含义与 ChatGPT 模型一致
++ `model`：一个 Key 即可接入 100+ 模型（DeepSeek、Claude、Gemini、Qwen、GLM、GPT 等），参考 [模型列表](https://docs.link-ai.tech/platform/api/chat#models)，也可以留空，在 [LinkAI 平台](https://link-ai.tech/console/factory) 修改应用的默认模型
++ 其他参数含义与 OpenAI 模型一致
 
 </details>
 

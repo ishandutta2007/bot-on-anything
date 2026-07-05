@@ -45,17 +45,31 @@ class ChatGPTModel(Model):
         elif context.get('type', None) == 'IMAGE_CREATE':
             return self.create_img(query, 0)
 
+    def _supports_sampling_params(self, model):
+        # reasoning models only accept default sampling values
+        name = (model or "").lower()
+        if name.startswith("gpt-5"):
+            return False
+        if name.startswith(("o1", "o3", "o4")):
+            return False
+        return True
+
+    def _build_completion_args(self, messages, stream=False):
+        model = model_conf(const.OPEN_AI).get("model") or "gpt-3.5-turbo"
+        args = {
+            "model": model,
+            "messages": messages,
+            "stream": stream,
+        }
+        if self._supports_sampling_params(model):
+            args["temperature"] = model_conf(const.OPEN_AI).get("temperature", 0.75)
+            args["frequency_penalty"] = model_conf(const.OPEN_AI).get("frequency_penalty", 0.0)
+            args["presence_penalty"] = model_conf(const.OPEN_AI).get("presence_penalty", 1.0)
+        return args
+
     def reply_text(self, query, user_id, retry_count=0):
         try:
-            response = openai.ChatCompletion.create(
-                model= model_conf(const.OPEN_AI).get("model") or "gpt-3.5-turbo",  # 对话模型的名称
-                messages=query,
-                temperature=model_conf(const.OPEN_AI).get("temperature", 0.75),  # 熵值，在[0,1]之间，越大表示选取的候选词越随机，回复越具有不确定性，建议和top_p参数二选一使用，创意性任务越大越好，精确性任务越小越好
-                #max_tokens=4096,  # 回复最大的字符数，为输入和输出的总数
-                #top_p=model_conf(const.OPEN_AI).get("top_p", 0.7),,  #候选词列表。0.7 意味着只考虑前70%候选词的标记，建议和temperature参数二选一使用
-                frequency_penalty=model_conf(const.OPEN_AI).get("frequency_penalty", 0.0),  # [-2,2]之间，该值越大则越降低模型一行中的重复用词，更倾向于产生不同的内容
-                presence_penalty=model_conf(const.OPEN_AI).get("presence_penalty", 1.0)  # [-2,2]之间，该值越大则越不受输入限制，将鼓励模型生成输入中不存在的新词，更倾向于产生不同的内容
-                )
+            response = openai.ChatCompletion.create(**self._build_completion_args(query))
             reply_content = response.choices[0]['message']['content']
             used_token = response['usage']['total_tokens']
             log.debug(response)
@@ -92,16 +106,7 @@ class ChatGPTModel(Model):
         try:
             user_id=context['from_user_id']
             new_query = Session.build_session_query(query, user_id)
-            res = openai.ChatCompletion.create(
-                model= model_conf(const.OPEN_AI).get("model") or "gpt-3.5-turbo",  # 对话模型的名称
-                messages=new_query,
-                temperature=model_conf(const.OPEN_AI).get("temperature", 0.75),  # 熵值，在[0,1]之间，越大表示选取的候选词越随机，回复越具有不确定性，建议和top_p参数二选一使用，创意性任务越大越好，精确性任务越小越好
-                #max_tokens=4096,  # 回复最大的字符数，为输入和输出的总数
-                #top_p=model_conf(const.OPEN_AI).get("top_p", 0.7),,  #候选词列表。0.7 意味着只考虑前70%候选词的标记，建议和temperature参数二选一使用
-                frequency_penalty=model_conf(const.OPEN_AI).get("frequency_penalty", 0.0),  # [-2,2]之间，该值越大则越降低模型一行中的重复用词，更倾向于产生不同的内容
-                presence_penalty=model_conf(const.OPEN_AI).get("presence_penalty", 1.0),  # [-2,2]之间，该值越大则越不受输入限制，将鼓励模型生成输入中不存在的新词，更倾向于产生不同的内容
-                stream=True
-            )
+            res = openai.ChatCompletion.create(**self._build_completion_args(new_query, stream=True))
             full_response = ""
             for chunk in res:
                 log.debug(chunk)
